@@ -1,16 +1,18 @@
 import { useEffect, useState } from 'react';
 import './App.css';
-import { Movie as MovieComponent } from './Components/Movie';
+import { Filter, Movie as MovieComponent } from './Components';
 
 type Movie = {
   id: number;
   title: string;
-  overview: string;
   poster_path: string;
+  genre_ids: number[];
 };
 
 function App() {
   const [popularMovies, setPopularMovies] = useState<Movie[]>([]);
+  const [filteredMovies, setFilteredMovies] = useState<Movie[]>([]);
+  const [activeGenre, setActiveGenre] = useState(0);
 
   const fetchPopular = async () => {
     const data = await fetch(`
@@ -21,6 +23,7 @@ function App() {
     const movies = await data.json();
 
     setPopularMovies(movies.results);
+    setFilteredMovies(movies.results);
   };
 
   useEffect(() => {
@@ -29,8 +32,15 @@ function App() {
 
   return (
     <div className="App">
+      <Filter
+        popularMovies={popularMovies}
+        setFilteredMovies={(movies) => setFilteredMovies(movies)}
+        activeGenre={activeGenre}
+        setActiveGenre={(id) => setActiveGenre(id)}
+      />
+
       <div className="popular-movies">
-        {popularMovies.map((movie) => (
+        {filteredMovies.map((movie) => (
           <MovieComponent key={movie.id} movie={movie} />
         ))}
       </div>
