@@ -1,45 +1,41 @@
-import { useState } from 'react'
-import logo from './logo.svg'
-import './App.css'
+import { useEffect, useState } from 'react';
+import './App.css';
+import { Movie as MovieComponent } from './Components/Movie';
+
+type Movie = {
+  id: number;
+  title: string;
+  overview: string;
+  poster_path: string;
+};
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [popularMovies, setPopularMovies] = useState<Movie[]>([]);
+
+  const fetchPopular = async () => {
+    const data = await fetch(`
+    https://api.themoviedb.org/3/movie/popular?api_key=${
+      import.meta.env.VITE_MOVIES_API_KEY
+    }&language=en-US&page=1`);
+
+    const movies = await data.json();
+
+    setPopularMovies(movies.results);
+  };
+
+  useEffect(() => {
+    fetchPopular();
+  }, []);
 
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>Hello Vite + React!</p>
-        <p>
-          <button type="button" onClick={() => setCount((count) => count + 1)}>
-            count is: {count}
-          </button>
-        </p>
-        <p>
-          Edit <code>App.tsx</code> and save to test HMR updates.
-        </p>
-        <p>
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn React
-          </a>
-          {' | '}
-          <a
-            className="App-link"
-            href="https://vitejs.dev/guide/features.html"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Vite Docs
-          </a>
-        </p>
-      </header>
+      <div className="popular-movies">
+        {popularMovies.map((movie) => (
+          <MovieComponent key={movie.id} movie={movie} />
+        ))}
+      </div>
     </div>
-  )
+  );
 }
 
-export default App
+export default App;
